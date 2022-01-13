@@ -1,0 +1,110 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/12/Memory.jack
+
+/**
+ * This library provides two services: direct access to the computer's main
+ * memory (RAM), and allocation and recycling of memory blocks. The Hack RAM
+ * consists of 32,768 words, each holding a 16-bit binary number.
+ */ 
+class Memory {
+
+    static Array ram;
+    static Array heap;
+
+    /** Initializes the class. */
+    function void init() {
+        let ram = 0;
+        let heap = 2048;
+        let heap[0] = 0;
+        let heap[1] = 14334;
+
+        return;
+    }
+
+    /** Returns the RAM value at the given address. */
+    function int peek(int address) {
+        return ram[address];
+    }
+
+    /** Sets the RAM value at the given address to the given value. */
+    function void poke(int address, int value) {
+        let ram[address] = value;
+        return;
+    }
+
+    function int findBlock(int size, Array blockAddress, Array prevBlockAddress) {
+        var Array address;
+
+        if (blockAddress[1] > (size + 1)) {
+            if (blockAddress[1] > (size + 3)) {
+                let address = blockAddress + blockAddress[1] - size;
+                let address[0] = 0;
+                let address[1] = size;
+
+                let blockAddress[1] = blockAddress[1] - size - 2;
+                return address;
+            } else {
+                let prevBlockAddress[0] = blockAddress[0];
+                return blockAddress;
+            }
+        } else {
+            if (blockAddress[0] = 0) {
+                return 0;
+            } else {
+                return Memory.findBlock(size, blockAddress[0], blockAddress);
+            }
+        }
+    }
+
+    /** Finds an available RAM block of the given size and returns
+     *  a reference to its base address. */
+    function int alloc(int size) {
+        var Array address;
+
+        let address = Memory.findBlock(size, heap, 0);
+
+        if (address = 0) {
+            return 0;
+        } else {
+            return address + 2;
+        }
+    }
+
+    function void insertBlock(Array blockAddress, Array address, Array prevAddress) {
+        if (address = 0) {
+            let prevAddress[0] = blockAddress;
+        } else {
+            if (blockAddress = (address + address[1] + 2)) {
+                let address[1] = address[1] + blockAddress[1] + 2;
+            } else {
+                if (address = (blockAddress + blockAddress[1] + 2)) {
+                    let prevAddress[0] = blockAddress;
+                    let blockAddress[0] = address[0];
+                    let blockAddress[1] = blockAddress[1] + address[1] + 2;
+                } else {
+                    if (address > blockAddress) {
+                        let prevAddress[0] = blockAddress;
+                        let blockAddress[0] = address;
+                    } else {
+                        do Memory.insertBlock(blockAddress, address[0], address);
+                    }
+                }
+            }
+        }
+
+        return;
+    }
+
+    /** De-allocates the given object (cast as an array) by making
+     *  it available for future allocations. */
+    function void deAlloc(Array o) {
+        var Array address;
+
+        let address = o - 2;
+        do Memory.insertBlock(address, heap, 0);
+
+        return;
+    }    
+}

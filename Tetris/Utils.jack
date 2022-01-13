@@ -1,0 +1,23 @@
+class Utils {
+
+	function int mod(int x, int y) {
+		var int res;
+		let res =  x - ((x / y) * y);
+		return res;
+	}
+
+	function boolean inArray(Array arr, int len, int val) {
+		var int i;
+
+		let i = 0;
+		while (i < len) {
+			if (arr[i] = val) {
+				return true;
+			}
+
+			let i = i + 1;
+		}
+
+		return false;
+	}
+}

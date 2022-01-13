@@ -1,0 +1,31 @@
+class UI {
+
+	field int x;
+
+	constructor UI new() {
+		let x = 0;
+		return this;
+	}
+
+	method void dispose() {
+		do Memory.deAlloc(this);
+		return;
+	}
+
+	method void draw() {
+		// Top line
+		do Screen.drawLine(6, 6, 130, 6);
+		do Screen.drawLine(7, 7, 129, 7);
+		// Right line
+		do Screen.drawLine(130, 6, 130, 250);
+		do Screen.drawLine(129, 7, 129, 249);
+		// Bottom line
+		do Screen.drawLine(6, 250, 130, 250);
+		do Screen.drawLine(7, 249, 129, 249);
+		// Left line
+		do Screen.drawLine(6, 6, 6, 250);
+		do Screen.drawLine(7, 7, 7, 249);
+
+		return;
+	}
+}

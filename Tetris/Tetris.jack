@@ -1,0 +1,302 @@
+class Tetris {
+
+	field UI ui;
+	field Array grid;
+	field Tetrimino piece;
+	field int level, score;
+
+	static int frameCounter;
+	static String levelString, scoreString;
+
+	constructor Tetris new() {
+		let ui = UI.new();
+		do initGrid();
+		let piece = Tetrimino.new(Utils.mod(frameCounter, 7));
+		let level = 1;
+		let frameCounter = 0;
+
+		let levelString = "Level: ";
+		let scoreString = "Score: ";
+
+		return this;
+	}
+
+	method void initGrid() {
+		var Array line;
+		var int i, j;
+
+		let grid = Array.new(20);
+		let i = 0;
+		while (i < 20) {
+			let line = Array.new(10);
+			let j = 0;
+			while (j < 10) {
+				let line[j] = 0;
+				let j = j + 1;
+			}
+			let grid[i] = line;
+			let i = i + 1;
+		}
+
+		return;
+	}
+
+	method void dispose() {
+		do ui.dispose();
+		do grid.dispose();
+		do Memory.deAlloc(this);
+		return;
+	}
+
+	method void newTetrimino() {
+		do piece.dispose();
+		let piece = Tetrimino.new(Utils.mod(frameCounter, 7));
+		return;
+	}
+
+	method boolean intersects() {
+		var Array line;
+		var boolean intersect;
+		var int i, j;
+
+		let i = 0;
+		while (i < 4) {
+			let j = 0;
+			while (j < 4) {
+				if (Utils.inArray(piece.asArray(), 4, (i * 4) + j)) {
+					if (((i + piece.getY()) > 19) | ((j + piece.getX()) > 9) | ((j + piece.getX()) < 0)) {
+						return true;
+					}
+
+					let line = grid[i + piece.getY()];
+					if (line[j + piece.getX()] > 0) {
+						return true;
+					}
+				}
+
+				let j = j + 1;
+			}
+
+			let i = i + 1;
+		}
+
+		return false;
+	}
+
+	method void breakLines() {
+		var Array line, prevLine;
+		var int i, j;
+		var int i2, j2;
+		var int newScore;
+		var boolean isComplete;
+
+		let newScore = 100;
+
+		let i = 0;
+		while (i < 20) {
+			let line = grid[i];
+			let isComplete = true;
+
+			let j = 0;
+			while (j < 10) {
+				if (line[j] = 0) {
+					let isComplete = false;
+				}
+
+				let j = j + 1;
+			}
+
+			if (isComplete) {
+				let newScore = newScore * 2;
+
+				let i2 = i;
+				while (i2 > 0) {
+					let line = grid[i2];
+					let prevLine = grid[i2 - 1];
+
+					let j2 = 0;
+					while (j2 < 10) {
+						let line[j2] = prevLine[j2];
+						let j2 = j2 + 1;
+					}
+
+					let i2 = i2 - 1;
+				}
+
+				let line = grid[0];
+
+				let j2 = 0;
+				while (j2 < 4) {
+					let line[j2] = 0;
+					let j2 = j2 + 1;
+				}
+			}
+
+			let i = i + 1;
+		}
+
+		let score = score + newScore;
+
+		return;
+	}
+
+	method void fastDown() {
+		while (~(intersects())) {
+			do piece.setY(piece.getY() + 1);
+		}
+		do piece.setY(piece.getY() - 1);
+		do freeze();
+
+		return;
+	}
+
+	method void left() {
+		do piece.setX(piece.getX() - 1);
+		if (intersects()) {
+			do piece.setX(piece.getX() + 1);
+		}
+
+		return;
+	}
+
+	method void rotate() {
+		do piece.rotate(1);
+		if (intersects()) {
+			do piece.rotate(-1);
+		}
+
+		return;
+	}
+
+	method void right() {
+		do piece.setX(piece.getX() + 1);
+		if (intersects()) {
+			do piece.setX(piece.getX() - 1);
+		}
+
+		return;
+	}
+
+	method void down() {
+		do piece.setY(piece.getY() + 1);
+		if (intersects()) {
+			do piece.setY(piece.getY() - 1);
+			do freeze();
+		}
+
+		return;
+	}
+
+	method void freeze() {
+		var Array line;
+		var int i, j;
+
+		let i = 0;
+		while (i < 4) {
+			let j = 0;
+			while (j < 4) {
+				if (Utils.inArray(piece.asArray(), 4, (i * 4) + j)) {
+					let line = grid[i + piece.getY()];
+					let line[j + piece.getX()] = 1;
+				}
+
+				let j = j + 1;
+			}
+
+			let i = i + 1;
+		}
+
+		do breakLines();
+		do newTetrimino();
+
+		let level = level + 1;
+
+		return;
+	}
+
+	method void run() {
+		var int input, elapsed;
+		var boolean playing;
+
+		let level = 1;
+		let playing = true;
+
+		while (playing) {
+			do draw();
+			do Sys.wait(33);
+
+			let frameCounter = frameCounter + 1;
+			let input = Input.getKey();
+
+			if (input) {
+				if (input = 130) {
+					do left();
+				}
+				if (input = 131) {
+					do rotate();
+				}
+				if (input = 132) {
+					do right();
+				}
+				if (input = 133) {
+					do down();
+				}
+				if (input = 32) {
+					do fastDown();
+				}
+			}
+
+			if (frameCounter > elapsed) {
+				do down();
+
+				if (intersects()) {
+					let playing = false;
+				}
+
+				let elapsed = frameCounter + (330 / (level + 10));
+			}
+		}
+
+		return;
+	}
+
+	method void draw() {
+		var Array line;
+		var int i, j;
+		var int screenX1, screenY1, screenX2, screenY2;
+
+		do Screen.clearScreen();
+		do ui.draw();
+		do piece.draw();
+
+		let i = 0;
+		while (i < 20) {
+			let line = grid[i];
+
+			let j = 0;
+			while (j < 10) {
+				if (line[j]) {
+					let screenX1 = 8 + (12 * j) + 1;
+					let screenY1 = 8 + (12 * i) + 1;
+					let screenX2 = screenX1 + 10;
+					let screenY2 = screenY1 + 10;
+
+					do Screen.drawRectangle(screenX1, screenY1, screenX2, screenY2);
+				}
+
+				let j = j + 1;
+			}
+
+			let i = i + 1;
+		}
+
+		do Output.moveCursor(2, 17);
+		do Output.printString(levelString);
+		do Output.printInt(level);
+		do Output.moveCursor(3, 17);
+		do Output.printString(scoreString);
+		do Output.printInt(score);
+
+		return;
+	}
+}

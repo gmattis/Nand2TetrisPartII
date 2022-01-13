@@ -1,0 +1,21 @@
+class Input {
+
+	static boolean available;
+
+	function char getKey() {
+		var char keyPressed;
+		let keyPressed = Keyboard.keyPressed();
+
+		if (keyPressed = 0) {
+			let available = true;
+			return keyPressed;
+		} else {
+			if (available) {
+				let available = false;
+				return keyPressed;
+			} else {
+				return 0;
+			}
+		}
+	}
+}

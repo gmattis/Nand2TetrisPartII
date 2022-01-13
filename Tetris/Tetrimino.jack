@@ -1,0 +1,192 @@
+class Tetrimino {
+
+	field int type, rot;
+	field int x, y;
+
+	static Array pieces, rotLen;
+	static boolean piecesSet;
+
+	constructor Tetrimino new(int pieceType) {
+		if (~(piecesSet)) {
+			do initPiecesArray();
+			let piecesSet = true;
+		}
+
+		let type = pieceType;
+		let rot = 0;
+		let x = 3;
+		let y = 0;
+
+		return this;
+	}
+
+	method void dispose() {
+		do Memory.deAlloc(this);
+		return;
+	}
+
+	method void rotate(int rotOffset) {
+		let rot = Utils.mod(rot + rotOffset, rotLen[type]);
+		return;
+	}
+
+	method Array asArray() {
+		var Array piece;
+		let piece = pieces[type];
+		return piece[rot];
+	}
+
+	method int getX() {
+		return x;
+	}
+
+	method void setX(int xpos) {
+		let x = xpos;
+		return;
+	}
+
+	method int getY() {
+		return y;
+	}
+
+	method void setY(int ypos) {
+		let y = ypos;
+		return;
+	}
+
+	method void draw() {
+		var Array array;
+		var int screenX1, screenY1, screenX2, screenY2;
+		var int i, j;
+
+		let array = asArray();
+		let i = 0;
+		while (i < 4) {
+			let j = 0;
+			while (j < 4) {
+				if (Utils.inArray(array, 4, (i * 4) + j)) {
+					let screenX1 = 8 + (12 * (x + j)) + 1;
+					let screenY1 = 8 + (12 * (y + i)) + 1;
+					let screenX2 = screenX1 + 10;
+					let screenY2 = screenY1 + 10;
+
+					do Screen.drawRectangle(screenX1, screenY1, screenX2, screenY2);
+				}
+
+				let j = j + 1;
+			}
+
+			let i = i + 1;
+		}
+		
+		return;
+	}
+
+	method void initPiecesArray() {
+		var Array piecesArray, subPiecesArray;
+
+		let pieces = Array.new(7);
+		// First tetrimino
+		let piecesArray = Array.new(2);
+		// First rotation
+		let subPiecesArray = Array.new(4);
+		let subPiecesArray[0] = 1; let subPiecesArray[1] = 5; let subPiecesArray[2] = 9; let subPiecesArray[3] = 13;
+		let piecesArray[0] = subPiecesArray;
+		// Second rotation
+		let subPiecesArray = Array.new(4);
+		let subPiecesArray[0] = 4; let subPiecesArray[1] = 5; let subPiecesArray[2] = 6; let subPiecesArray[3] = 7;
+		let piecesArray[1] = subPiecesArray;
+		let pieces[0] = piecesArray;
+		// Second tetrimino
+		let piecesArray = Array.new(2);
+		// First rotation
+		let subPiecesArray = Array.new(4);
+		let subPiecesArray[0] = 4; let subPiecesArray[1] = 5; let subPiecesArray[2] = 9; let subPiecesArray[3] = 10;
+		let piecesArray[0] = subPiecesArray;
+		// Second rotation
+		let subPiecesArray = Array.new(4);
+		let subPiecesArray[0] = 2; let subPiecesArray[1] = 6; let subPiecesArray[2] = 5; let subPiecesArray[3] = 9;
+		let piecesArray[1] = subPiecesArray;
+		let pieces[1] = piecesArray;
+		// Third tetrimino
+		let piecesArray = Array.new(2);
+		// First rotation
+		let subPiecesArray = Array.new(4);
+		let subPiecesArray[0] = 6; let subPiecesArray[1] = 7; let subPiecesArray[2] = 9; let subPiecesArray[3] = 10;
+		let piecesArray[0] = subPiecesArray;
+		// Second rotation
+		let subPiecesArray = Array.new(4);
+		let subPiecesArray[0] = 1; let subPiecesArray[1] = 5; let subPiecesArray[2] = 6; let subPiecesArray[3] = 10;
+		let piecesArray[1] = subPiecesArray;
+		let pieces[2] = piecesArray;
+		// Fourth tetrimino
+		let piecesArray = Array.new(4);
+		// First rotation
+		let subPiecesArray = Array.new(4);
+		let subPiecesArray[0] = 1; let subPiecesArray[1] = 2; let subPiecesArray[2] = 5; let subPiecesArray[3] = 9;
+		let piecesArray[0] = subPiecesArray;
+		// Second rotation
+		let subPiecesArray = Array.new(4);
+		let subPiecesArray[0] = 0; let subPiecesArray[1] = 4; let subPiecesArray[2] = 5; let subPiecesArray[3] = 6;
+		let piecesArray[1] = subPiecesArray;
+		// Third rotation
+		let subPiecesArray = Array.new(4);
+		let subPiecesArray[0] = 1; let subPiecesArray[1] = 5; let subPiecesArray[2] = 9; let subPiecesArray[3] = 8;
+		let piecesArray[2] = subPiecesArray;
+		// Fourth rotation
+		let subPiecesArray = Array.new(4);
+		let subPiecesArray[0] = 4; let subPiecesArray[1] = 5; let subPiecesArray[2] = 6; let subPiecesArray[3] = 10;
+		let piecesArray[3] = subPiecesArray;
+		let pieces[3] = piecesArray;
+		// Fifth tetrimino
+		let piecesArray = Array.new(4);
+		// First rotation
+		let subPiecesArray = Array.new(4);
+		let subPiecesArray[0] = 1; let subPiecesArray[1] = 2; let subPiecesArray[2] = 6; let subPiecesArray[3] = 10;
+		let piecesArray[0] = subPiecesArray;
+		// Second rotation
+		let subPiecesArray = Array.new(4);
+		let subPiecesArray[0] = 5; let subPiecesArray[1] = 6; let subPiecesArray[2] = 7; let subPiecesArray[3] = 9;
+		let piecesArray[1] = subPiecesArray;
+		// Third rotation
+		let subPiecesArray = Array.new(4);
+		let subPiecesArray[0] = 2; let subPiecesArray[1] = 6; let subPiecesArray[2] = 10; let subPiecesArray[3] = 11;
+		let piecesArray[2] = subPiecesArray;
+		// Fourth rotation
+		let subPiecesArray = Array.new(4);
+		let subPiecesArray[0] = 3; let subPiecesArray[1] = 5; let subPiecesArray[2] = 6; let subPiecesArray[3] = 7;
+		let piecesArray[3] = subPiecesArray;
+		let pieces[4] = piecesArray;
+		// Sixth tetrimino
+		let piecesArray = Array.new(4);
+		// First rotation
+		let subPiecesArray = Array.new(4);
+		let subPiecesArray[0] = 1; let subPiecesArray[1] = 4; let subPiecesArray[2] = 5; let subPiecesArray[3] = 6;
+		let piecesArray[0] = subPiecesArray;
+		// Second rotation
+		let subPiecesArray = Array.new(4);
+		let subPiecesArray[0] = 1; let subPiecesArray[1] = 4; let subPiecesArray[2] = 5; let subPiecesArray[3] = 9;
+		let piecesArray[1] = subPiecesArray;
+		// Third rotation
+		let subPiecesArray = Array.new(4);
+		let subPiecesArray[0] = 4; let subPiecesArray[1] = 5; let subPiecesArray[2] = 6; let subPiecesArray[3] = 9;
+		let piecesArray[2] = subPiecesArray;
+		// Fourth rotation
+		let subPiecesArray = Array.new(4);
+		let subPiecesArray[0] = 1; let subPiecesArray[1] = 5; let subPiecesArray[2] = 6; let subPiecesArray[3] = 9;
+		let piecesArray[3] = subPiecesArray;
+		let pieces[5] = piecesArray;
+		// Seventh tetrimino
+		let piecesArray = Array.new(1);
+		// First rotation
+		let subPiecesArray = Array.new(4);
+		let subPiecesArray[0] = 1; let subPiecesArray[1] = 2; let subPiecesArray[2] = 5; let subPiecesArray[3] = 6;
+		let piecesArray[0] = subPiecesArray;
+		let pieces[6] = piecesArray;
+		// Rotation length array
+		let rotLen = Array.new(7);
+		let rotLen[0] = 2; let rotLen[1] = 2; let rotLen[2] = 2; let rotLen[3] = 4; let rotLen[4] = 4; let rotLen[5] = 4; let rotLen[6] = 1;
+
+		return;
+	}
+}
